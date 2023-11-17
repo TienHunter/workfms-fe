@@ -1,24 +1,24 @@
 import { createRouter, createWebHistory } from "vue-router";
 import VueCookies from "vue-cookies";
 import routerAuth from "../views/auth/router";
+import routerDashboard from "../views/dashboard/router";
+import routerWorkspace from "../views/workspace/router";
+import NotfoundPage from "../views/notfound/NotfoundPage.vue";
 // 2. Define some routes
 // Each route should map to a component.
 // We'll talk about nested routes later.
 const routes = [
-  {
-    path: "/dashboard",
-    name: "Dashboard",
-    component: () =>
-      import(/* webpackChunkName: "home" */ "@/views/dashboard/Dashboard.vue"),
-  },
-
+  ...routerDashboard,
+  ...routerAuth,
+  ...routerWorkspace,
   {
     path: "/:pathMatch(.*)*",
     name: "NotFound",
     meta: {
       title: "Không tìm thấy",
+      layout: "auth",
     },
-    component: () => <div>NotFound</div>,
+    component: NotfoundPage,
   },
 ];
 

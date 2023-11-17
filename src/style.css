@@ -1,9 +1,2 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+@import url(./tailwind.css);
+@import url(assets/styles/globalStyle.css);
