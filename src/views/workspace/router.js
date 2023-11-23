@@ -2,9 +2,10 @@ import WorkspacePage from "./WorkspacePage.vue";
 import WorkspaceMember from "./WorkspaceMember.vue";
 import WorkspaceSetting from "./WorkspaceSetting.vue";
 import WorkspaceBoard from "./WorkspaceBoard.vue";
+import ProjectDetail from "./project/ProjectDetail.vue";
 const routerWorkspace = [
   {
-    path: "/ws/:id",
+    path: "/ws/:id/",
     name: "WorkspacePage",
     meta: {
       layout: "default",
@@ -31,6 +32,11 @@ const routerWorkspace = [
         name: "WorkspaceBoard",
         component: WorkspaceBoard,
       },
+      {
+        path: "projects/:projectId",
+        name: "ProjectDetail",
+        component: ProjectDetail
+      }
     ],
   },
 ];

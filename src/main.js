@@ -6,6 +6,7 @@ import Antd from "ant-design-vue";
 import { notification, message } from "ant-design-vue";
 import * as icons from "@ant-design/icons-vue";
 import App from "./App.vue";
+import Icon from "@ant-design/icons-vue";
 import store from "./stores";
 import "ant-design-vue/dist/reset.css";
 import { registerGlobalComponents } from "./utils/import";
@@ -15,7 +16,7 @@ app.use(VueCookies);
 app.use(router);
 app.use(store);
 app.use(Antd);
-
+app.component("icon", Icon);
 // Tạo thành phần Vue cho mỗi biểu tượng
 for (const key in icons) {
   app.component(key, icons[key]);

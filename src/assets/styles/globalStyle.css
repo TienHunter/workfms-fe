@@ -1,4 +1,5 @@
- * {
+@import url(./tailwind/tailwind-utilities.css);
+* {
    box-sizing: border-box;
    padding: 0;
    margin: 0;
@@ -19,6 +20,9 @@
    --overview-label-size: 12px;
 
  }
+ body {
+  height: 100vh;
+ }
 
  .toast-message {
    right: 100px;
@@ -27,6 +31,7 @@
  /* Define scrollbar styles */
  ::-webkit-scrollbar {
    width: 8px;
+   height: 12px;
    /* Set the width of the scrollbar */
  }
 
@@ -59,3 +64,25 @@
  ::-webkit-scrollbar-thumb:active {
    background: #555;
  }
+
+ .group:hover .group-hover\:block {
+  display: block;
+ }
+
+.center-y {
+  top: 50%;
+  transform: translateY(-50%);
+}
+.center-x {
+  left: 50%;
+  transform: translateX(-50%);
+}
+.top-1 {
+  top: 0.25rem;
+}
+.right-1 {
+  right:0.25rem
+}
+.left-\[1000rem\] {
+  left:1000rem
+}

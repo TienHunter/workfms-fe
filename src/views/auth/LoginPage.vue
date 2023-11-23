@@ -1,66 +1,44 @@
 <template>
   <div class="container-login">
     <div class="wrap-login">
-      <a-form
-        :model="formState"
-        name="basic"
-        autocomplete="off"
-        size="large"
-        class="w-full"
-        @finish="onFinish">
-        <a-form-item :wrapper-col="{ span: 24 }"
-          ><h2 class="login-title">Login</h2></a-form-item
-        >
-        <a-form-item
-          name="username"
+      <a-form :model="formState" name="basic" autocomplete="off" size="large" class="w-full" @finish="onFinish"
+        @finishFailed="handleFinishFailed">
+        <a-form-item :wrapper-col="{ span: 24 }">
+          <h2 class="login-title">Login</h2>
+        </a-form-item>
+        <a-form-item ref="usenameRef" name="username"
           :rules="[{ required: true, message: 'Please input your username!' }]">
-          <a-input
-            v-model:value="formState.username"
-            placeholder="Username or Email" />
+          <a-input v-model:value="formState.username" placeholder="Username or Email" />
         </a-form-item>
 
-        <a-form-item
-          name="password"
+        <a-form-item ref="passwordRef" name="password"
           :rules="[{ required: true, message: 'Please input your password!' }]">
-          <a-input-password
-            v-model:value="formState.password"
-            placeholder="Password" />
+          <a-input-password v-model:value="formState.password" placeholder="Password" />
         </a-form-item>
         <!-- show error -->
-        <a-form-item
-          v-show="messageError"
-          :wrapper-col="{ span: 24 }"
-          class="mb-0 text-red">
+        <a-form-item v-show="messageError" :wrapper-col="{ span: 24 }" class="mb-0 text-red">
           <span>{{ messageError }}</span>
         </a-form-item>
 
         <!-- Đường dẫn "Quên mật khẩu" -->
         <a-form-item>
-          <a href="/forgot-password" class="flex justify-center"
-            >Forgot password ?</a
-          >
+          <p class="flex justify-center"><a href="/forgot-password">Forgot password ?</a></p>
         </a-form-item>
 
         <a-form-item>
-          <a-button type="primary" class="w-full" html-type="submit"
-            >Login</a-button
-          >
+          <a-button type="primary" class="w-full" html-type="submit">Login</a-button>
         </a-form-item>
 
         <!-- Đường dẫn "Quên mật khẩu" -->
         <a-form-item>
-          <span class="w-full flex justify-center"
-            >Don't have on account? <a href="/register">Sign up</a></span
-          >
+          <span class="w-full flex justify-center">Don't have on account? <a href="/register">Sign up</a></span>
         </a-form-item>
         <!-- Đường dẫn "Đăng nhập bằng Google" -->
         <a-form-item>
           <span class="flex justify-center">---------- Or ----------</span>
         </a-form-item>
         <a-form-item :wrapper-col="{ span: 24 }">
-          <a-button class="flex justify-center" href="https://www.google.com"
-            >Login with Google</a-button
-          >
+          <a-button class="flex justify-center" href="https://www.google.com">Login with Google</a-button>
         </a-form-item>
       </a-form>
     </div>
@@ -78,6 +56,8 @@ const formState = reactive({
   username: "",
   password: "",
 });
+const usenameRef = ref(null);
+const passwordRef = ref(null);
 const messageError = ref("");
 const onFinish = async (value) => {
   // call api
@@ -90,7 +70,19 @@ const onFinish = async (value) => {
     router.push({ name: "Dashboard" });
   } else {
     messageError.value = res.Message ?? "";
+    // usenameRef.value.$el.querySelector("input").style.borderColor = "red";
+    // passwordRef.value.$el.querySelector(".ant-input-affix-wrapper.ant-input-password").style.borderColor = "red";
+    // passwordRef.value.$el.querySelector(".ant-form-item-control-input").nextSibling.style = "display:flex";
+    // usenameRef.value.$el.querySelector("input").focus();
+    // passwordRef.value.$el.querySelector(".ant-form-item-explain-error").sty = es.Message;
+    // passwordRef.value.$el.querySelector(".ant-form-item-explain-error").innerHTML = es.Message;
   }
+};
+const handleFinishFailed = errors => {
+  console.log(passwordRef.value.$el);
+
+  // console.log(usename);
+  console.log(errors);
 };
 </script>
 
@@ -114,6 +106,7 @@ const onFinish = async (value) => {
   position: relative;
   z-index: 1;
 }
+
 .wrap-login {
   background-color: #ffffffcc;
   display: flex;
@@ -123,11 +116,13 @@ const onFinish = async (value) => {
   border-radius: 4px;
   width: 360px;
 }
+
 .login-title {
   display: flex;
   justify-content: center;
   font-size: 24px;
 }
+
 .w-full {
   width: 100%;
 }

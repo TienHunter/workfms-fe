@@ -4,7 +4,8 @@
       class="pointer"
       :width="40"
       :height="40"
-      src="/src/assets/images/logo.jpg">
+      src="/src/assets/images/logo.jpg"
+    >
     </a-avatar>
 
     <!-- <div class="logo pointer" @click=""></div> -->
@@ -48,7 +49,8 @@
     </a-dropdown>
     <a-divider
       type="vertical"
-      style="border-color: #7cb305; border-size: 3px; border-width: 2px" />
+      style="border-color: #7cb305; border-size: 3px; border-width: 2px"
+    />
     <a-dropdown trigger="['click']">
       <template #overlay>
         <a-menu>
@@ -74,7 +76,8 @@
     </a-dropdown>
     <a-divider
       type="vertical"
-      style="border-color: #7cb305; border-width: 2px" />
+      style="border-color: #7cb305; border-width: 2px"
+    />
     <a-dropdown trigger="['click']">
       <template #overlay>
         <a-menu>
@@ -139,7 +142,8 @@
         v-model:value="value"
         placeholder="input search text"
         style="width: 200px"
-        @search="onSearch" />
+        @search="onSearch"
+      />
 
       <BellOutlined class="font-20 font-bold pointer" />
       <QuestionCircleOutlined class="font-20 font-bold pointer" />
@@ -149,7 +153,7 @@
           <a-menu @click="handleMenuClick">
             <a-menu-item key="1">
               <UserOutlined />
-              <span>Hồ sơ</span>
+              Hồ sơ
             </a-menu-item>
 
             <a-menu-item key="2">
@@ -162,7 +166,8 @@
           size="medium"
           :style="{ backgroundColor: 'red', verticalAlign: 'middle' }"
           :gap="100"
-          class="pointer">
+          class="pointer"
+        >
           <template #icon><UserOutlined /></template>
         </a-avatar>
       </a-dropdown>
@@ -170,18 +175,7 @@
   </a-layout-header>
 </template>
 <script>
-import {
-  DownOutlined,
-  UserOutlined,
-  FormOutlined,
-  RadiusUprightOutlined,
-  UsergroupAddOutlined,
-  BellOutlined,
-  QuestionCircleOutlined,
-} from "@ant-design/icons-vue";
-import { ref } from "vue";
-export default {
-  components: {
+  import {
     DownOutlined,
     UserOutlined,
     FormOutlined,
@@ -189,32 +183,43 @@ export default {
     UsergroupAddOutlined,
     BellOutlined,
     QuestionCircleOutlined,
-  },
-  setup() {
-    const handleMenuClick = (e) => {
-      console.log("click", e);
-    };
-    return {
-      handleMenuClick,
-    };
-  },
-};
+  } from "@ant-design/icons-vue";
+  import { ref } from "vue";
+  export default {
+    components: {
+      DownOutlined,
+      UserOutlined,
+      FormOutlined,
+      RadiusUprightOutlined,
+      UsergroupAddOutlined,
+      BellOutlined,
+      QuestionCircleOutlined,
+    },
+    setup() {
+      const handleMenuClick = (e) => {
+        console.log("click", e);
+      };
+      return {
+        handleMenuClick,
+      };
+    },
+  };
 </script>
 <style scoped>
-.header {
-  position: fixed;
-  height: var(--height-header);
-  width: 100%;
-  background-color: rgba(255, 255, 255, 0.5);
-  top: 0;
-  border-bottom: 2px solid #ffccff;
-  z-index: 99;
-}
-.logo {
-  background-image: url(../../assets//images/logo.jpg);
-  background-repeat: no-repeat;
-  background-size: contain;
-  width: 40px;
-  height: 40px;
-}
+  .header {
+    position: fixed;
+    height: var(--height-header);
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.5);
+    top: 0;
+    border-bottom: 2px solid #ffccff;
+    z-index: 99;
+  }
+  .logo {
+    background-image: url(../../assets//images/logo.jpg);
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 40px;
+    height: 40px;
+  }
 </style>

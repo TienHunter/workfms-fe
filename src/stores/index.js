@@ -1,3 +1,8 @@
 import { createStore } from "vuex";
-const store = createStore({});
+import moduleWorkspaces from "./modules/workspaces/moduleWorkspaces";
+const store = createStore({
+   modules: {
+      moduleWorkspaces,
+   }
+});
 export default store;

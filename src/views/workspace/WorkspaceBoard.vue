@@ -9,19 +9,21 @@
           v-model:value="inputSearch"
           class="search-board"
           placeholder="Tìm kiếm bảng.."
-          allow-clear>
+          allow-clear
+        >
           <template #prefix>
             <SearchOutlined />
           </template>
         </a-input>
       </a-col>
-      <a-col :span="8">
+      <a-col :span="6" class="">
         <a-card
           hoverable
           style="
             background-image: url(https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png);
             height: calc(100% - 1px);
-          ">
+          "
+        >
           <template #actions>
             <setting-outlined key="setting" />
             <edit-outlined key="edit" />
@@ -31,13 +33,14 @@
           </a-card-meta>
         </a-card>
       </a-col>
-      <a-col :span="8">
+      <a-col :span="6">
         <a-card
           hoverable
           style="
             background-image: url(https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png);
             height: calc(100% - 1px);
-          ">
+          "
+        >
           <template #actions>
             <setting-outlined key="setting" />
             <edit-outlined key="edit" />
@@ -52,12 +55,12 @@
   </a-layout>
 </template>
 <script setup>
-import { ref, reactive } from "vue";
-const inputSearch = ref("");
+  import { ref, reactive } from "vue";
+  const inputSearch = ref("");
 </script>
 <style scoped>
-.search-board {
-  width: 240px;
-  float: right;
-}
+  .search-board {
+    width: 240px;
+    float: right;
+  }
 </style>

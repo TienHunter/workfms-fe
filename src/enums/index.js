@@ -15,6 +15,11 @@ const Enums = {
     Private: 0,
     Public: 1,
   },
+  ProjectType: {
+    Private: 1,
+    Workspace: 2,
+    Public: 3
+  },
   localStorage: {
     Token: "token",
   },
