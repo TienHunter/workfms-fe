@@ -49,7 +49,10 @@
             </template>
           </a-button>
         </div>
-        <a-menu-item v-for="pj in projectsCreated" :key="pj.Id">
+        <a-menu-item
+          v-for="pj in projectsOwner"
+          :key="`/ws/${id}/projects/${pj.Id}`"
+        >
           <router-link
             :to="{ name: 'ProjectDetail', params: { id, projectId: pj.Id } }"
           >
@@ -160,6 +163,9 @@
 
   const workspaces = computed(() => store.state.moduleWorkspaces.workspaces);
   const workspace = computed(() => store.state.moduleWorkspaces.workspace);
+  const projectsOwner = computed(
+    () => store.state.moduleProjects.projectsOwner
+  );
   const selectedKeys = ref([""]);
   const id = ref("");
 
@@ -167,7 +173,6 @@
   let projectModal = reactive({});
   const isShowCreateProjectNodal = ref(false);
   const isLoadingCreateProjectModal = ref(false);
-  const projectsCreated = ref([]);
   const accessibleBoards = ref([
     {
       icon: LockOutlined,
@@ -197,26 +202,9 @@
   });
   onBeforeMount(async () => {
     // get workspace by id
-    try {
-      await store.dispatch("moduleWorkspaces/getWorkspaceById", id.value);
-      // console.log(workspace.value);
-    } catch (error) {
-      console.log(error);
-    }
-
+    await store.dispatch("moduleWorkspaces/getWorkspaceById", id.value);
     // get project own
-    try {
-      let res = await projectService.getListProjects({
-        WorkspaceId: id.value,
-        Owner: true,
-      });
-      if (res?.Data?.Data) {
-        projectsCreated.value = res.Data.Data;
-      }
-    } catch (error) {
-      message.error("Lấy danh sách dự án của bạn thất bại");
-      console.log(error);
-    }
+    await store.dispatch("moduleProjects/getProjectListOwnerAsync", id.value);
   });
   // ========== end lifecycle ==========
 
@@ -249,7 +237,8 @@
             projectCreateFormRef.value.resetFields();
             message.success("Create project successfully");
 
-            projectsCreated.value.push(res.Data);
+            // projectsOwner.value.push(res.Data);
+            store.dispatch("addProjectsOwner", res.Data);
             router.push({
               name: "ProjectDetail",
               params: { id: id.value, projectId: res.Data.Id },

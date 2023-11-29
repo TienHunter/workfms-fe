@@ -1,11 +1,13 @@
 <template lang="">
   <a-layout class="h-full">
     <div
-      class="flex flex-wrap items-center justify-between w-full h-20 bg-gray-300 shrink-0 w-full px-2"
+      class="flex flex-wrap items-center justify-between w-full h-20 bg-gray-500 shrink-0 w-full px-2"
     >
       <div class="flex flex-wrap items-center flex-start max-w-full gap-2">
         <EditableElement
           :valueBind="project.ProjectName"
+          classHeading="max-w-xs"
+          classInput=""
           @onChangeValue="editNameProject"
         />
         <a-button>
@@ -82,167 +84,33 @@
 
     <a-layout-content class="pt-2 h-full overflow-x-auto">
       <div class="inline-flex h-full items-start gap-6">
-        <div class="w-72 bg-gray-200 flex flex-col rounded max-h-full">
-          <div class="flex items-center justify-between px-3 py-2">
-            <div class="text-sm font-semibold text-gray-700">Need work</div>
-            <a-dropdown trigger="['click']">
-              <template #overlay>
-                <a-menu>
-                  <a-menu-item key="1">
-                    <PlusOutlined />
-                    Add card
-                  </a-menu-item>
+        <draggable
+          :list="kanbanList"
+          class="inline-flex h-full items-start gap-6"
+          handle=".handle"
+          @start="drag = true"
+          @end="drag = false"
+          item-key="name"
+        >
+          <template #item="{ element, index }">
+            <Kanban
+              :list="element"
+              class="w-72 bg-gray-500 flex flex-col rounded max-h-full shadow-lg rounded overflow-hidden"
+              @createdCard="createdCard"
+              @editTitleCard="editTitleCard"
+            >
+            </Kanban>
+          </template>
+        </draggable>
 
-                  <a-menu-item key="2" style="color: red">
-                    <DeleteOutlined />
-                    Delete list
-                  </a-menu-item>
-                </a-menu>
-              </template>
-              <a-button>
-                <template #icon>
-                  <EllipsisOutlined />
-                </template>
-              </a-button>
-            </a-dropdown>
-          </div>
-          <div class="flex flex-col overflow-hidden">
-            <div class="flex-1 overflow-y-auto">
-              <draggable
-                v-model="listCard1"
-                group="people"
-                @start="drag = true"
-                @end="drag = false"
-                item-key="id"
-                tag="ul"
-                drag-class="drag"
-                ghost-class="ghost"
-              >
-                <template #item="{ element }">
-                  <li
-                    class="group relative bg-white p-3 m-2 shadow rounded border-b border-gray-300 hover:bg-gray-400 list-none pointer"
-                  >
-                    <span href="#" class="text-sm">{{ element.name }}</span>
-
-                    <a-button
-                      size="small"
-                      shape="round"
-                      class="hidden group-hover:block absolute right-1 text-gray-50 bg-gray-200 center-y"
-                    >
-                      <template #icon><EditOutlined /></template>
-                    </a-button>
-                  </li>
-                </template>
-              </draggable>
-              <!-- <ul>
-                <li
-                  v-for="item in Array.from({ length: 100 })"
-                  class="group relative bg-white p-3 m-2 shadow rounded border-b border-gray-300 hover:bg-gray-400 list-none pointer"
-                >
-                  <a href="#" class="text-sm">card item</a>
-
-                  <a-button
-                    size="small"
-                    shape="round"
-                    class="hidden group-hover:block absolute right-1 text-gray-50 bg-gray-200 center-y"
-                  >
-                    <template #icon><EditOutlined /></template>
-                  </a-button>
-                </li>
-              </ul> -->
-            </div>
-            <a-button class="m-2">
-              <template #icon>
-                <PlusOutlined />
-              </template>
-              Add card
-            </a-button>
-          </div>
-        </div>
-        <div class="w-72 bg-gray-200 flex flex-col rounded max-h-full">
-          <div class="flex items-center justify-between px-3 py-2">
-            <div class="text-sm font-semibold text-gray-700">Working</div>
-            <a-dropdown trigger="['click']">
-              <template #overlay>
-                <a-menu>
-                  <a-menu-item key="1">
-                    <PlusOutlined />
-                    Add card
-                  </a-menu-item>
-
-                  <a-menu-item key="2" style="color: red">
-                    <DeleteOutlined />
-                    Delete list
-                  </a-menu-item>
-                </a-menu>
-              </template>
-              <a-button>
-                <template #icon>
-                  <EllipsisOutlined />
-                </template>
-              </a-button>
-            </a-dropdown>
-          </div>
-          <div class="flex flex-col overflow-hidden">
-            <div class="flex-1 overflow-y-auto">
-              <draggable
-                v-model="listCard2"
-                group="people"
-                @start="drag = true"
-                @end="drag = false"
-                item-key="id"
-                tag="ul"
-                drag-class="drag"
-                ghost-class="ghost"
-              >
-                <template #item="{ element }">
-                  <li
-                    class="group relative bg-white p-3 m-2 shadow rounded border-b border-gray-300 hover:bg-gray-400 list-none pointer"
-                  >
-                    <span href="#" class="text-sm">{{ element.name }}</span>
-
-                    <a-button
-                      size="small"
-                      shape="round"
-                      class="hidden group-hover:block absolute right-1 text-gray-50 bg-gray-200 center-y"
-                    >
-                      <template #icon><EditOutlined /></template>
-                    </a-button>
-                  </li>
-                </template>
-              </draggable>
-              <!-- <ul>
-                <li
-                  v-for="item in Array.from({ length: 100 })"
-                  class="group relative bg-white p-3 m-2 shadow rounded border-b border-gray-300 hover:bg-gray-400 list-none pointer"
-                >
-                  <a href="#" class="text-sm">card item</a>
-
-                  <a-button
-                    size="small"
-                    shape="round"
-                    class="hidden group-hover:block absolute right-1 text-gray-50 bg-gray-200 center-y"
-                  >
-                    <template #icon><EditOutlined /></template>
-                  </a-button>
-                </li>
-              </ul> -->
-            </div>
-            <a-button class="m-2">
-              <template #icon>
-                <PlusOutlined />
-              </template>
-              Add card
-            </a-button>
-          </div>
-        </div>
         <div class="w-72">
-          <a-button block>
-            <template #icon>
-              <PlusOutlined />
-            </template>
-            Add another list
-          </a-button>
+          <CreateItem
+            placeholder="Add another list"
+            textSubmit="enter the list title"
+            textCancel="Cancel"
+            textButton="Add another list"
+            :onSubmit="addKanban"
+          />
         </div>
       </div>
     </a-layout-content>
@@ -253,89 +121,87 @@
   import { useRoute } from "vue-router";
   import draggable from "vuedraggable";
   import EditableElement from "../../../components/EditableElement.vue";
-  import { projectService } from "@/api/services";
+  import CreateItem from "./CreateItem.vue";
+  import Kanban from "./Kanban.vue";
+  import { projectService, kanbanService } from "@/api/services";
+  import { useStore } from "vuex";
   // ========== start state ==========
   const route = useRoute();
+  const store = useStore();
   const project = ref({});
-  const kanbans = ref([]);
-  const tasks = ref([]);
+  const kanbanList = ref([]);
+  // const tasks = ref([]);
   const projectId = ref();
-  const listCard1 = ref([
-    {
-      name: "work 1",
-      id: 1,
-    },
-    {
-      name: "work 2",
-      id: 2,
-    },
-    {
-      name: "work 3",
-      id: 6,
-    },
-    {
-      name: "work 4",
-      id: 3,
-    },
-    {
-      name: "Gerard",
-      id: 4,
-    },
-  ]);
 
-  const listCard2 = ref([
-    {
-      name: "work_ 1 3",
-      id: 1,
-    },
-    {
-      name: "work 124",
-      id: 2,
-    },
-    {
-      name: "work 341",
-      id: 6,
-    },
-    {
-      name: "work 43",
-      id: 3,
-    },
-  ]);
   // ========== end state ==========
 
   // ========== start lifecycle ==========
   watchEffect(() => {
     projectId.value = route.params?.projectId ?? "";
   });
-  // watchEffect(() => {
-  //   projectId.value = route.params?.projectId ?? "";
+  // onBeforeMount(async () => {
+  //   if (projectId.value) {
+  //     // call api
+  //     try {
+  //       // call project
+  //       let resProject = await projectService.getProjectById(projectId.value);
+  //       // console.log(resProject);
+  //       if (resProject) {
+  //         project.value = resProject.Data;
+  //       }
+  //       // console.log(project.value);
+  //     } catch (error) {
+  //       console.log(error);
+  //       message.error("Lấy thông tin dự án thất bại");
+  //     }
+
+  //     try {
+  //       // call kanbans
+  //       let resKanbans = await kanbanService.getListByProjectId(
+  //         projectId.value
+  //       );
+  //       if (resKanbans.Success) {
+  //         kanbanList.value = resKanbans.Data;
+  //       }
+  //     } catch (error) {
+  //       console.log(error.message);
+  //       message.error("get list cards failure");
+  //     }
+  //   }
   // });
-  onBeforeMount(async () => {
-    if (projectId.value) {
-      // call api
-      try {
-        // call project
-        let resProject = await projectService.getProjectById(projectId.value);
-        // console.log(resProject);
-        if (resProject) {
-          project.value = resProject.Data;
-        }
-        console.log(project.value);
-      } catch (error) {
-        console.log(error);
-        message.error("Lấy thông tin dự án thất bại");
-      }
-    }
-  });
-  watch(projectId, async () => {
+  watchEffect(async () => {
     try {
       // call project
-      let resProject = await projectService.getProjectById(projectId.value);
+      // let resProject = await projectService.getProjectById(projectId.value);
       // console.log(resProject);
-      if (resProject) {
-        project.value = resProject.Data;
+      if (projectId.value) {
+        // call api
+        try {
+          // call project
+          let resProject = await projectService.getProjectById(projectId.value);
+          // console.log(resProject);
+          if (resProject) {
+            project.value = resProject.Data;
+          }
+          // console.log(project.value);
+        } catch (error) {
+          console.log(error);
+          message.error("Lấy thông tin dự án thất bại");
+        }
+
+        try {
+          // call kanbans
+          let resKanbans = await kanbanService.getListByProjectId(
+            projectId.value
+          );
+          if (resKanbans.Success) {
+            kanbanList.value = resKanbans.Data;
+          }
+        } catch (error) {
+          console.log(error.message);
+          message.error("get list cards failure");
+        }
       }
-      console.log(project.value);
     } catch (error) {
       console.log(error);
       message.error("Lấy thông tin dự án thất bại");
@@ -344,16 +210,57 @@
   // ========== end lifecycle ==========
 
   // ========== start methods ==========
-  const editNameProject = async (projectName) => {
-    console.log(projectName);
+  const editNameProject = async (emitValue) => {
+    // projectName.value = emitValue;
+    // console.log(projectName);
+    if (emitValue) {
+      try {
+        await projectService.editProjectName({
+          ProjectName: emitValue,
+          Id: project.value.Id,
+        });
+        project.value.ProjectName = emitValue;
+        store.dispatch(
+          "moduleProjects/editProjectNameInProjectOnwer",
+          project.value
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const addKanban = async (value) => {
     try {
-      await projectService.editProjectName(
-        projectName,
-        project.value.ProjectId
-      );
-      project.value.ProjectName = projectName;
+      let newKanban = {
+        ProjectId: project.value.Id,
+        SortOrder: kanbanList.value?.length ?? 0,
+        Title: value,
+      };
+      let res = await kanbanService.create(newKanban);
+      if (res?.Success) {
+        kanbanList.value.push({
+          ...res.Data,
+          Cards: [],
+        });
+      }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const createdCard = (value) => {
+    // console.log(value);
+    const { index, card } = value;
+    kanbanList.value[index].Cards.push(card);
+  };
+
+  const editTitleCard = (params) => {
+    console.log("project detail", params);
+    const { value, indexCard, indexKanban } = params;
+    const card = kanbanList.value?.[indexKanban]?.Cards?.[indexCard];
+    if (card) {
+      card.Title = value;
     }
   };
   // ========== end methods ==========

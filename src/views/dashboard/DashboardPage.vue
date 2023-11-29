@@ -152,7 +152,7 @@
   });
   onBeforeMount(async () => {
     // call workspace list
-    console.log("on 2");
+
     // try {
     //   let res = await workspaceService.getAll();
     //   console.log(res);
@@ -164,7 +164,8 @@
     //   console.log(error);
     //   message.error("Láy danh sách không gian làm việc thất bại");
     // }
-    store.dispatch("moduleWorkspaces/getWorkspaces");
+    await store.dispatch("moduleWorkspaces/getWorkspaces");
+    console.log("on 2");
   });
   onMounted(() => {
     console.log("on mounted");
@@ -174,22 +175,25 @@
     formRef.value
       .validateFields()
       .then(async (values) => {
-        console.log("Received values of form: ", values);
+        // console.log("Received values of form: ", values);
         // console.log("formState: ", toRaw(formState));
         try {
           let res = await workspaceService.create(values);
           if (res.Success) {
             console.log(res);
             formRef.value.resetFields();
-            // visible.value = false;
+            visible.value = false;
+            // add new workspace to vuex
+            store.dispatch("moduleWorkspaces/addToWorkspaces", res.Data);
+            // redirect sang khong gian lam viec
             router.push({
               name: "WorkspaceMember",
               params: { id: res.Data.Id },
             });
-            visible.value = false;
           }
         } catch (error) {
           const { ErrorMessage, Code } = error ?? {};
+          console.log(error);
         }
       })
       .catch((info) => {

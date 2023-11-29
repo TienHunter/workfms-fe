@@ -1,4 +1,4 @@
-import { reactive, ref } from "vue";
+
 import { workspaceService } from "@/api/services";
 import helper from "@/utils/helper";
 const moduleWorkspaces = {
@@ -13,6 +13,9 @@ const moduleWorkspaces = {
       },
       SET_WORKSPACE(state, payload) {
          state.workspace = payload;
+      },
+      ADD_TO_WORKSPACES(state, payload) {
+         state.workspaces.unshift(payload);
       }
    },
    actions: {
@@ -41,6 +44,11 @@ const moduleWorkspaces = {
          } finally {
 
          }
+      },
+
+      addToWorkspaces: ({ state, commit, rootState }, payload) => {
+         const tmp = helper.deepClone(payload);
+         commit('ADD_TO_WORKSPACES', tmp);
       }
    },
    getters: {}

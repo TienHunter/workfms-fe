@@ -17,11 +17,8 @@ class ProjectService extends baseService {
    async getProjectById(projectId) {
       return await instance.get(`${this.getEndpoint()}/${projectId}`);
    }
-   async editProjectName(projectName, projectId) {
-      return await instance.put(`${this.getEndpoint()}/edit-projectname`, {
-         projectId,
-         projectName
-      })
+   async editProjectName(projectEdit) {
+      return await instance.put(`${this.getEndpoint()}/edit-projectname`, projectEdit)
    }
 }
 export default new ProjectService();

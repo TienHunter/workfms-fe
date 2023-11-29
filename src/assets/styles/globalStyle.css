@@ -86,3 +86,15 @@
 .left-\[1000rem\] {
   left:1000rem
 }
+.min-w-5 {
+  min-width: 5rem;
+}
+.mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: #88888888;
+  z-index: 99;
+}

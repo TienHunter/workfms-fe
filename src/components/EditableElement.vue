@@ -1,9 +1,10 @@
 <template lang="">
   <div class="flex flex-col items-start max-w-full">
     <h1
-      :class="[isEditting ? 'absolute left-[1000rem]' : '']"
+      :class="[isEditting ? 'absolute left-[1000rem]' : '', props.classHeading]"
       ref="headingRef"
-      class="hover:bg-white/20 whitespace-pre-wrap overflow-hidden text-ellipsis pointer border border-transparent px-3 py-1 m-0 text-2xl text-white font-bold"
+      :title="inputValue"
+      class="hover:bg-white/20 max-h-full truncate pointer border border-transparent px-3 py-1 m-0 text-2xl text-white font-bold"
       @click="edit()"
     >
       {{ inputValue }}
@@ -38,6 +39,18 @@
       type: String,
       default: "",
     },
+    classHeading: {
+      type: String,
+      default: "",
+    },
+    classInput: {
+      type: String,
+      default: "",
+    },
+    required: {
+      type: Boolean,
+      default: false,
+    },
   });
   const emit = defineEmits(["onChangeValue"]);
   // ========== start state ==========
@@ -63,8 +76,12 @@
     console.log(headingRef.value.offsetWidth);
   };
   const onSubmit = () => {
+    if (inputValue.value) {
+      emit("onChangeValue", inputValue.value);
+    } else {
+      inputValue.value = props.valueBind;
+    }
     isEditting.value = false;
-    emit("onChangeValue", inputValue.value);
   };
 </script>
 <style lang=""></style>
