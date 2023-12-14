@@ -83,14 +83,15 @@
     </div>
 
     <a-layout-content class="pt-2 h-full overflow-x-auto">
-      <div class="inline-flex h-full items-start gap-6">
+      <div data-draggable class="inline-flex h-full items-start gap-6">
         <draggable
           :list="kanbanList"
           class="inline-flex h-full items-start gap-6"
           handle=".handle"
+          item-key="kanban"
           @start="drag = true"
           @end="drag = false"
-          item-key="name"
+          @change="onChangeKanban"
         >
           <template #item="{ element, index }">
             <Kanban
@@ -125,6 +126,7 @@
   import Kanban from "./Kanban.vue";
   import { projectService, kanbanService } from "@/api/services";
   import { useStore } from "vuex";
+  import { POSITION_GAP } from "../../../utils/constants";
   // ========== start state ==========
   const route = useRoute();
   const store = useStore();
@@ -232,9 +234,14 @@
 
   const addKanban = async (value) => {
     try {
+      let lastKanban = kanbanList.value?.[(kanbanList.value?.length ?? 0) - 1];
+      let sortOrder = POSITION_GAP;
+      if (lastKanban) {
+        sortOrder += lastKanban.SortOrder;
+      }
       let newKanban = {
         ProjectId: project.value.Id,
-        SortOrder: kanbanList.value?.length ?? 0,
+        SortOrder: sortOrder,
         Title: value,
       };
       let res = await kanbanService.create(newKanban);
@@ -257,10 +264,49 @@
 
   const editTitleCard = (params) => {
     console.log("project detail", params);
-    const { value, indexCard, indexKanban } = params;
-    const card = kanbanList.value?.[indexKanban]?.Cards?.[indexCard];
-    if (card) {
-      card.Title = value;
+    const { value, CardId, KanbanId } = params;
+    let kanban = kanbanList.value.find((k) => k.Id === KanbanId);
+    if (kanban) {
+      let card = kanban.Cards.find((c) => c.Id === CardId);
+      if (card) {
+        card.Title = value;
+      }
+    }
+    // const card = kanbanList.value?.[indexKanban]?.Cards?.[indexCard];
+    // if (card) {
+    //   card.Title = value;
+    // }
+  };
+
+  const onChangeKanban = async (e) => {
+    let item = e.added || e.moved;
+    if (!item) {
+      return;
+    }
+    let index = item.newIndex;
+    let prevKanban = kanbanList.value[index - 1];
+    let nextKanban = kanbanList.value[index + 1];
+    let currentKanban = kanbanList.value[index];
+    let sortOrder = currentKanban.SortOrder;
+    if (prevKanban && nextKanban) {
+      sortOrder = (prevKanban.SortOrder + nextKanban.SortOrder) / 2;
+    } else if (prevKanban) {
+      sortOrder = prevKanban.SortOrder + prevKanban.SortOrder / 2;
+    } else if (nextKanban) {
+      sortOrder = nextKanban.SortOrder / 2;
+    }
+    currentKanban.SortOrder = sortOrder;
+    // call api update new item
+    try {
+      let valueUpdate = {
+        Id: currentKanban.Id,
+        ProjectId: currentKanban.ProjectId,
+        SortOrder: sortOrder,
+      };
+      await kanbanService.move(valueUpdate);
+    } catch (error) {
+      console.log(error);
+      message.error("Đã xảy ra lỗi cập nhật kanban");
     }
   };
   // ========== end methods ==========

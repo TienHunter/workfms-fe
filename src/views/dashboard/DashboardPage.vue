@@ -148,7 +148,6 @@
 
   onBeforeMount(() => {
     selectedKeys.value = [route.fullPath];
-    console.log("on 1");
   });
   onBeforeMount(async () => {
     // call workspace list
@@ -165,7 +164,6 @@
     //   message.error("Láy danh sách không gian làm việc thất bại");
     // }
     await store.dispatch("moduleWorkspaces/getWorkspaces");
-    console.log("on 2");
   });
   onMounted(() => {
     console.log("on mounted");

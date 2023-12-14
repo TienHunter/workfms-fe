@@ -3,6 +3,8 @@ import { createApp } from "vue";
 import router from "./routers";
 import VueCookies from "vue-cookies";
 import Antd from "ant-design-vue";
+import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
 import { notification, message } from "ant-design-vue";
 import * as icons from "@ant-design/icons-vue";
 import App from "./App.vue";
@@ -17,6 +19,7 @@ app.use(router);
 app.use(store);
 app.use(Antd);
 app.component("icon", Icon);
+app.component('QuillEditor', QuillEditor)
 // Tạo thành phần Vue cho mỗi biểu tượng
 for (const key in icons) {
   app.component(key, icons[key]);

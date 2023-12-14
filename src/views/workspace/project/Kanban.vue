@@ -30,7 +30,7 @@
         <draggable
           :list="cards"
           group="cards"
-          :item-key="(element) => element.KanbanId"
+          item-key="card"
           tag="ul"
           @start="drag = true"
           @end="drag = false"
@@ -63,8 +63,6 @@
     reactive,
     watchEffect,
     watch,
-    defineProps,
-    defineEmits,
     computed,
   } from "vue";
   import draggable from "vuedraggable";
@@ -72,6 +70,8 @@
   import CardItem from "./CardItem.vue";
   import { cardService } from "@/api/services";
   import helper from "@/utils/helper";
+  import { message } from "ant-design-vue";
+  import { POSITION_GAP } from "../../../utils/constants";
   const props = defineProps({
     list: {
       type: Object,
@@ -79,16 +79,21 @@
     },
   });
 
-  const emit = defineEmits(["createdCard", "editTitleCard"]);
-  // const cards = computed(() => props.list.Cards);
-  const cards = ref(props.list.Cards);
+  const emit = defineEmits(["createdCard", "editTitleCard", "moveCard"]);
+  const cards = computed(() => props.list.Cards ?? []);
+  // const cards = ref(props.list.Cards);
+
   // ========== start methods ==========
   const addCard = async (value) => {
     console.log(props.list);
     try {
+      let lastCard = props.list?.Cards?.[props.list?.Cards?.length - 1];
+      let sortOrder = lastCard
+        ? lastCard.SortOrder + POSITION_GAP
+        : POSITION_GAP;
       let newCard = {
         KanbanId: props.list.Id,
-        SortOrder: props.list?.Cards?.length ?? 0,
+        SortOrder: sortOrder,
         Title: value,
       };
 
@@ -105,7 +110,7 @@
   };
   const editTitleCard = async (value, card) => {
     try {
-      console.log("kaban", value, card);
+      // console.log("kaban", value, card);
       const tmp = helper.deepClone(card);
       tmp.Title = value;
       // call api edit title card
@@ -113,8 +118,8 @@
       // success emit value, indexCard, indexKanban -> gap loi khi nhieu nguoi dung (de sau)
       emit("editTitleCard", {
         value: value,
-        indexCard: card.SortOrder,
-        indexKanban: props.list.SortOrder,
+        CardId: card.Id,
+        KanbanId: props.list.Id,
       });
     } catch (error) {
       console.log(error);
@@ -128,20 +133,32 @@
     }
     let index = item.newIndex;
     let prevCard = cards.value[index - 1];
-    let nextCard = cards.value[index - 1];
+    let nextCard = cards.value[index + 1];
     let card = cards.value[index];
-    let position = card.Position;
+    let sortOrder = card.SortOrder;
     if (prevCard && nextCard) {
-      position = (prevCard.Position + nextCard.Position) / 2;
+      sortOrder = (prevCard.SortOrder + nextCard.SortOrder) / 2;
     } else if (prevCard) {
-      position = prevCard.Position + prevCard.Position / 2;
+      sortOrder = prevCard.SortOrder + prevCard.SortOrder / 2;
     } else if (nextCard) {
-      position = nextCard.Position / 2;
+      sortOrder = nextCard.SortOrder / 2;
     }
-    // // call api update new item
-
+    card.SortOrder = sortOrder;
+    card.KanbanId = props.list.Id;
+    // call api update new item
+    try {
+      let valueUpdate = {
+        Id: card.Id,
+        KanbanId: props.list.Id,
+        SortOrder: sortOrder,
+      };
+      await cardService.move(valueUpdate);
+    } catch (error) {
+      console.log(error);
+      message.error("Đã xảy ra lỗi cập nhật thẻ");
+    }
     // sau khi xong thi emit de call lai kanbanList
-
+    // emit("moveCard");
     // console.log("change:", e, props.list);
   };
   // ========== end methods ==========

@@ -10,6 +10,9 @@ class KanbanService extends BaseService {
    async getListByProjectId(projectId) {
       return await instance.get(`${this.endpoint}/project/${projectId}`);
    }
+   async move(value) {
+      return await instance.put(`${this.getEndpoint()}/move`, value);
+   }
 }
 
 export default new KanbanService();

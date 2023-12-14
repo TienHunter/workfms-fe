@@ -26,14 +26,7 @@
   </div>
 </template>
 <script setup>
-  import {
-    defineProps,
-    nextTick,
-    ref,
-    watch,
-    onMounted,
-    watchEffect,
-  } from "vue";
+  import { nextTick, ref, watch, onMounted, watchEffect } from "vue";
   const props = defineProps({
     valueBind: {
       type: String,
