@@ -99,6 +99,7 @@
             </div>
           </div>
         </div>
+        <!-- mô tả -->
         <div class="card-detail-desc mt-4">
           <div class="flex items-center gap-3 mt-2 text-xl">
             <icon :component="MenuUnfoldOutlined"></icon>
@@ -139,13 +140,29 @@
             </template>
           </div>
         </div>
+        <!-- đính kèm -->
         <div class="card-detail-attactment mt-4">
           <div class="flex items-center gap-3 mt-2 text-xl">
             <PaperClipOutlined />
             Các tệp đính kèm
             <a-button class="ml-auto">Thêm</a-button>
           </div>
+          <div class="relative">
+            <a-upload
+              :file-list="fileList"
+              :customRequest="handleCustomRequest"
+              list-type="picture"
+              @change="handleChange"
+              @remove="handleRemove"
+            >
+              <a-button class="absolute top-n8 right-0">
+                <upload-outlined></upload-outlined>
+                upload
+              </a-button>
+            </a-upload>
+          </div>
         </div>
+        <!-- checklist -->
         <!-- v-for="cl in card.Checklists" :key="cl.Id" -->
         <div v-for="cl in card.Checklists" :key="cl.Id" class="check-list mt-4">
           <div class="flex items-center gap-3 mt-2 text-xl">
@@ -232,12 +249,20 @@
           </template>
           Thời gian
         </a-button>
-        <a-button class="truncate text-left">
+        <a-button class="truncate text-left" @click="testGetFile">
           <template #icon>
             <PaperClipOutlined />
           </template>
           Đính kèm
         </a-button>
+        <!-- <a-upload>
+          <a-button size="middle" class="truncate text-left">
+            <template #icon>
+              <PaperClipOutlined />
+            </template>
+            Đính kèm
+          </a-button>
+        </a-upload> -->
       </div>
     </div>
   </a-modal>
@@ -286,7 +311,12 @@
   } from "@ant-design/icons-vue";
   import JobItem from "./JobItem.vue";
   import JobCreateItem from "./JobCreateItem.vue";
-  import { cardService, checklistService, jobService } from "@/api/services";
+  import {
+    cardService,
+    checklistService,
+    jobService,
+    fileService,
+  } from "@/api/services";
   import { message } from "ant-design-vue";
   import { POSITION_GAP } from "@/utils/constants";
   import helper from "@/utils/helper";
@@ -308,6 +338,7 @@
   const isLoadingchecklistModal = ref(false);
   const checklistModal = ref({});
   const activeKey = ref(1);
+  const fileList = ref([]);
   // ========== end state ==========
 
   // ========== start lifecycle ==========
@@ -319,6 +350,37 @@
         card.value = res.Data;
         content.value = res.Data.Description;
       }
+    } catch (error) {
+      message.error("Lấy thông tin thẻ công việc thất bại");
+      console.log(error);
+    }
+
+    if (card.value?.Attachments) {
+      for (const att of card.value?.Attachments) {
+        try {
+          let res = await fileService.getFile(att.Id);
+          let url = URL.createObjectURL(res);
+          const newFile = {
+            uid: att.Id,
+            name: att.FileName,
+            status: "done",
+            type: att.ContentType,
+            url: url, // create URL for the original file
+          };
+          fileList.value.push(newFile);
+        } catch (error) {
+          const newFile = {
+            uid: att.Id,
+            name: att.FileName,
+            type: att.ContentType,
+            status: "error",
+          };
+          fileList.value.push(newFile);
+          console.log(error);
+        }
+      }
+    }
+    try {
     } catch (error) {
       message.error("Lấy thông tin thẻ công việc thất bại");
       console.log(error);
@@ -407,6 +469,58 @@
       console.log(error);
       return false;
     }
+  };
+  const handleCustomRequest = async ({ file, onSuccess, onError }) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      let res = await fileService.uploadFile(formData, props.cardId);
+      console.log(file);
+      console.log(typeof file);
+      // push vào filelists
+      // Create a new file object with the desired format
+      const newFile = {
+        uid: file.uid,
+        name: file.name,
+        status: "done",
+        url: URL.createObjectURL(file), // create URL for the original file
+        thumbUrl: URL.createObjectURL(file), // create URL for the original file
+      };
+      fileList.value.push(newFile);
+
+      console.log(fileList.value);
+      onSuccess();
+      message.success("Tải tệp lên thành công");
+    } catch (error) {
+      console.log(error);
+      onError(error);
+    }
+  };
+  const handleChange = () => {};
+  const testGetFile = async () => {
+    try {
+      let res = await fileService.getFile(
+        "7c3def5b-d028-49f7-94ff-f792a777ee98"
+      );
+      let url = URL.createObjectURL(res);
+      console.log(url);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleRemove = async (file) => {
+    try {
+      await fileService.removeFile(file.uid);
+      const index = fileList.value.indexOf(file);
+      const newFileList = fileList.value.slice();
+      newFileList.splice(index, 1);
+      fileList.value = newFileList;
+    } catch (error) {
+      console.log(error);
+    }
+    console.log(file);
   };
   // ========== end methods ==========
 </script>

@@ -4,6 +4,7 @@ import routerAuth from "../views/auth/router";
 import routerDashboard from "../views/dashboard/router";
 import routerWorkspace from "../views/workspace/router";
 import NotfoundPage from "../views/notfound/NotfoundPage.vue";
+import routerTest from "../views/tests/router";
 // 2. Define some routes
 // Each route should map to a component.
 // We'll talk about nested routes later.
@@ -11,6 +12,7 @@ const routes = [
   ...routerDashboard,
   ...routerAuth,
   ...routerWorkspace,
+  ...routerTest,
   {
     path: "/:pathMatch(.*)*",
     name: "NotFound",

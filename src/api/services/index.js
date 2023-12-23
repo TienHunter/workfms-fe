@@ -5,3 +5,4 @@ export { default as kanbanService } from "./kanbanService";
 export { default as cardService } from "./cardService";
 export { default as checklistService } from "./checklistService";
 export { default as jobService } from "./jobService";
+export { default as fileService } from "./fileService";
