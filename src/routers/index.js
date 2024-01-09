@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import VueCookies from "vue-cookies";
+import localStore from "@/utils/localStore.js";
+import Enums from "@/enums"
 import routerAuth from "../views/auth/router";
 import routerDashboard from "../views/dashboard/router";
 import routerWorkspace from "../views/workspace/router";
@@ -32,20 +34,20 @@ const router = createRouter({
   history: createWebHistory(),
   routes, // short for `routes: routes`
 });
-// router.beforeEach((to, from, next) => {
-//   if (to.matched.some((route) => route.meta.requiresAuth)) {
-//     // Kiểm tra xem người dùng đã đăng nhập hay chưa
-//     const token = VueCookies.get("token");
-//     if (token) {
-//       // Người dùng đã đăng nhập, cho phép truy cập
-//       next();
-//     } else {
-//       // Người dùng chưa đăng nhập, chuyển hướng đến trang đăng nhập
-//       next({ name: "Login" });
-//     }
-//   } else {
-//     // Tuyến công khai, cho phép truy cập
-//     next();
-//   }
-// });
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((route) => route.meta.requiresAuth)) {
+    // Kiểm tra xem người dùng đã đăng nhập hay chưa
+    const token = localStore.getItem(Enums.localStorage.Token);
+    if (token) {
+      // Người dùng đã đăng nhập, cho phép truy cập
+      next();
+    } else {
+      // Người dùng chưa đăng nhập, chuyển hướng đến trang đăng nhập
+      next({ name: "Login" });
+    }
+  } else {
+    // Tuyến công khai, cho phép truy cập
+    next();
+  }
+});
 export default router;

@@ -10,13 +10,16 @@ import * as icons from "@ant-design/icons-vue";
 import App from "./App.vue";
 import Icon from "@ant-design/icons-vue";
 import store from "./stores";
+import i18n from "./i18n";
 import "ant-design-vue/dist/reset.css";
 import { registerGlobalComponents } from "./utils/import";
+
 const app = createApp(App);
 registerGlobalComponents(app);
 app.use(VueCookies);
 app.use(router);
 app.use(store);
+app.use(i18n);
 app.use(Antd);
 app.component("icon", Icon);
 app.component('QuillEditor', QuillEditor)

@@ -88,7 +88,11 @@
           :list="kanbanList"
           class="inline-flex h-full items-start gap-6"
           handle=".handle"
+          tag="ul"
           item-key="kanban"
+          drag-class="drag-card"
+          ghost-class="sortable-ghost"
+          animation="150"
           @start="drag = true"
           @end="drag = false"
           @change="onChangeKanban"
@@ -116,9 +120,25 @@
       </div>
     </a-layout-content>
   </a-layout>
+
+  <router-view></router-view>
+  <!-- <CardDetail
+        v-if="openCard"
+        :isShow="openCard"
+        :cardId="card.Id"
+        @closeModal="openCard = false"
+      /> -->
 </template>
 <script setup>
-  import { ref, onBeforeMount, reactive, watchEffect, watch } from "vue";
+  import {
+    ref,
+    onBeforeMount,
+    reactive,
+    watchEffect,
+    watch,
+    onMounted,
+  } from "vue";
+  import * as signalR from "@microsoft/signalr";
   import { useRoute } from "vue-router";
   import draggable from "vuedraggable";
   import EditableElement from "../../../components/EditableElement.vue";
@@ -134,43 +154,33 @@
   const kanbanList = ref([]);
   // const tasks = ref([]);
   const projectId = ref();
-
+  const drag = ref(false);
   // ========== end state ==========
 
   // ========== start lifecycle ==========
+  // onMounted(() => {
+  //   const prjIdParam = route.params?.projectId ?? "";
+  //   const endpoint = `https://localhost:44328/boardcast`;
+  //   const connectionJob = new signalR.HubConnectionBuilder()
+  //     .withUrl(endpoint)
+  //     .build();
+  //   connectionJob
+  //     .start()
+  //     .then(() => {
+  //       console.log("connect signal started");
+  //     })
+  //     .catch((error) => {
+  //       console.log("connect signal error", error);
+  //     });
+
+  //   connectionJob.on("ReceviceMessage", (data) => {
+  //     console.log(data);
+  //   });
+  // }),
   watchEffect(() => {
     projectId.value = route.params?.projectId ?? "";
   });
-  // onBeforeMount(async () => {
-  //   if (projectId.value) {
-  //     // call api
-  //     try {
-  //       // call project
-  //       let resProject = await projectService.getProjectById(projectId.value);
-  //       // console.log(resProject);
-  //       if (resProject) {
-  //         project.value = resProject.Data;
-  //       }
-  //       // console.log(project.value);
-  //     } catch (error) {
-  //       console.log(error);
-  //       message.error("Lấy thông tin dự án thất bại");
-  //     }
 
-  //     try {
-  //       // call kanbans
-  //       let resKanbans = await kanbanService.getListByProjectId(
-  //         projectId.value
-  //       );
-  //       if (resKanbans.Success) {
-  //         kanbanList.value = resKanbans.Data;
-  //       }
-  //     } catch (error) {
-  //       console.log(error.message);
-  //       message.error("get list cards failure");
-  //     }
-  //   }
-  // });
   watchEffect(async () => {
     try {
       // call project
@@ -287,7 +297,7 @@
     let prevKanban = kanbanList.value[index - 1];
     let nextKanban = kanbanList.value[index + 1];
     let currentKanban = kanbanList.value[index];
-    let sortOrder = currentKanban.SortOrder;
+    let sortOrder = POSITION_GAP;
     if (prevKanban && nextKanban) {
       sortOrder = (prevKanban.SortOrder + nextKanban.SortOrder) / 2;
     } else if (prevKanban) {
@@ -300,7 +310,7 @@
     try {
       let valueUpdate = {
         Id: currentKanban.Id,
-        ProjectId: currentKanban.ProjectId,
+        ProjectId: projectId.value,
         SortOrder: sortOrder,
       };
       await kanbanService.move(valueUpdate);

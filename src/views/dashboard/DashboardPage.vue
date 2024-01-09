@@ -13,19 +13,19 @@
         <a-menu-item key="/dashboard/board-overview">
           <router-link :to="{ name: 'BoardOverview' }">
             <pie-chart-outlined />
-            <span>Bảng</span>
+            <span>{{ $t("dashboard.Project") }}</span>
           </router-link>
         </a-menu-item>
         <a-menu-item key="2">
           <router-link :to="{ name: 'BoardOverview' }">
             <desktop-outlined />
-            <span>Trang chủ</span>
+            <span>{{ $t("dashboard.Home") }}</span>
           </router-link>
         </a-menu-item>
         <a-divider style="border-color: #666; border-width: 1px" />
 
         <div class="flex items-center justify-between px-2">
-          <span>Các không gian làm việc</span>
+          <span>{{ $t("dashboard.Workspaces") }}</span>
           <a-button type="text" @click="visible = true">
             <template #icon>
               <PlusOutlined />
@@ -46,7 +46,7 @@
                 params: { id: workspace.Id },
               }"
             >
-              Bảng
+              {{ $t("dashboard.Project") }}
             </router-link>
           </a-menu-item>
 
@@ -54,14 +54,14 @@
             <router-link
               :to="{ name: 'WorkspaceMember', params: { id: workspace.Id } }"
             >
-              Thành viên
+              {{ $t("dashboard.Member") }}
             </router-link>
           </a-menu-item>
           <a-menu-item :key="`${workspace.Id}_setting`">
             <router-link
               :to="{ name: 'WorkspaceMember', params: { id: workspace.Id } }"
             >
-              Cài đặt
+              {{ $t("dashboard.Setting") }}
             </router-link>
           </a-menu-item>
         </a-sub-menu>
@@ -78,9 +78,9 @@
       v-model:open="visible"
       :mask-closable="false"
       :confirm-loading="confirmLoading"
-      title="Tạo không gian làm việc"
-      ok-text="Tạo"
-      cancel-text="Hủy"
+      :title="$t('workspace.CreateWorkspace')"
+      :ok-text="$t('command.Create')"
+      :cancel-text="$t('command.Cancel')"
       @ok="onOk"
     >
       <a-form
@@ -95,19 +95,23 @@
           :rules="[
             {
               required: true,
-              message: 'Nhập tên không gian làm việc',
+              message: $t('workspace.WorkspaceNameRequired'),
             },
           ]"
         >
           <a-input v-model:value="formState.WorkspaceName" />
         </a-form-item>
-        <a-form-item name="Description" label="Mô tả">
+        <a-form-item name="Description" :label="$t('workspace.Description')">
           <a-textarea v-model:value="formState.Description" />
         </a-form-item>
         <a-form-item name="Type" class="collection-create-form_last-form-item">
           <a-radio-group v-model:value="formState.Type">
-            <a-radio :value="Enums.WorkspaceType.Public">Công khai</a-radio>
-            <a-radio :value="Enums.WorkspaceType.Private">Riêng tư</a-radio>
+            <a-radio :value="Enums.WorkspaceType.Public">{{
+              $t("common.Public")
+            }}</a-radio>
+            <a-radio :value="Enums.WorkspaceType.Private">{{
+              $t("common.Private")
+            }}</a-radio>
           </a-radio-group>
         </a-form-item>
       </a-form>

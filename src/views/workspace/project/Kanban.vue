@@ -34,8 +34,8 @@
           tag="ul"
           @start="drag = true"
           @end="drag = false"
-          drag-class="drag-card"
-          ghost-class="ghost-card"
+          ghost-class="sortable-ghost"
+          animation="150"
           @change="onChange"
         >
           <template #item="{ element }">
@@ -81,6 +81,7 @@
 
   const emit = defineEmits(["createdCard", "editTitleCard", "moveCard"]);
   const cards = computed(() => props.list.Cards ?? []);
+  const drag = ref(false);
   // const cards = ref(props.list.Cards);
 
   // ========== start methods ==========
@@ -135,7 +136,7 @@
     let prevCard = cards.value[index - 1];
     let nextCard = cards.value[index + 1];
     let card = cards.value[index];
-    let sortOrder = card.SortOrder;
+    let sortOrder = POSITION_GAP;
     if (prevCard && nextCard) {
       sortOrder = (prevCard.SortOrder + nextCard.SortOrder) / 2;
     } else if (prevCard) {

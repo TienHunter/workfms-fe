@@ -7,6 +7,10 @@ class CheclistService extends BaseService {
       super()
    }
 
+   async move(valueUpdate) {
+      return await instance.put(`${this.getEndpoint()}/move`, valueUpdate);
+   }
+
 }
 
 export default new CheclistService();

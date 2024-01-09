@@ -54,7 +54,7 @@
           :key="`/ws/${id}/projects/${pj.Id}`"
         >
           <router-link
-            :to="{ name: 'ProjectDetail', params: { id, projectId: pj.Id } }"
+            :to="{ name: 'ProjectDetail', params: { projectId: pj.Id } }"
           >
             <pie-chart-outlined />
             <span> {{ pj.ProjectName }}</span>
@@ -139,9 +139,12 @@
       </a-form-item>
     </a-form>
   </a-modal>
+
+  <!-- mời thêm thành viên -->
+  <a-modal> </a-modal>
 </template>
 <script setup>
-  import { ref, onBeforeMount, reactive, computed } from "vue";
+  import { ref, onBeforeMount, reactive, computed, watchEffect } from "vue";
   import { PlusOutlined } from "@ant-design/icons-vue";
   import { useRoute, useRouter } from "vue-router";
   // import Icon from "@ant-design/icons-vue";
@@ -196,7 +199,7 @@
   // ========== end state ==========
 
   // ========== start lifecycle ==========
-  onBeforeMount(() => {
+  watchEffect(() => {
     id.value = route.params?.id ?? "";
     selectedKeys.value = [route.fullPath];
   });

@@ -69,6 +69,27 @@
   display: block;
  }
 
+
+ /* .drag-card>div {
+background-color: red;
+  opacity: 1;
+ } */
+ .chosen-card {
+  opacity: 1 !important;
+ }
+ /* .chosen-card>div {
+  background-color: green;
+  opacity: 1 !important;
+ } */ 
+ .sortable-ghost{
+  opacity: 0.5;
+  background: lightgray;
+  border-radius: 6px;
+}
+.sortable-ghost > div {
+  visibility: hidden;
+  opacity: 0;
+}
 .center-y {
   top: 50%;
   transform: translateY(-50%);

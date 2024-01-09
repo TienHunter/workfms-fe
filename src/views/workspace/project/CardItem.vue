@@ -3,7 +3,7 @@
     <div
       ref="cardRef"
       class="group relative bg-white p-3 my-2 shadow rounded border-b border-gray-300 hover:bg-gray-50 list-none pointer"
-      @click.stop="openCard = true"
+      @click.stop.prevent="onOpenCard"
     >
       <Teleport to="body">
         <div
@@ -24,8 +24,8 @@
               v-model:value="valueInput"
               class="max-w-full text-sm font-bold placehoder-gray-400"
               size="large"
-              :placeholder="placeholder"
-              rows="3"
+              placeholder="Input title card"
+              :rows="3"
             />
             <div class="flex items-center gap-2">
               <a-button htmlType="submit" type="primary" :loading="loading"
@@ -47,8 +47,55 @@
           </div>
         </div>
       </Teleport>
+      <div class="flex flex-col gap-4">
+        <!-- tags -->
+        <div v-if="card?.Tags?.length" class="flex gap-2">
+          <template v-for="(tag, iTag) in card?.Tags ?? []" :key="iTag">
+            <span
+              v-if="tag.IsUsed"
+              class="round"
+              :style="{ backgroundColor: tag.Color }"
+              :title="tag.Title"
+            ></span>
+          </template>
+        </div>
 
-      <span href="#" class="text-sm">{{ card?.Title }}</span>
+        <!-- title -->
+        <span href="#" class="text-sm">{{ card?.Title }}</span>
+        <!-- deadline -->
+
+        <!-- count -->
+        <div class="flex gap-2">
+          <!-- desc -->
+          <span v-show="card.Description" title="Đã có mô tả" class="p-1">
+            <AlignLeftOutlined />
+          </span>
+
+          <!-- comment -->
+
+          <!-- attachment -->
+          <span
+            v-show="card?.Attachments?.length"
+            title="Các tập tin đính kèm"
+            class="flex gap-1 p-1"
+          >
+            <PaperClipOutlined />
+            {{ card?.Attachments?.length }}
+          </span>
+          <!-- job finished/ sum job -->
+          <span
+            v-show="suumJobs"
+            title="Mục công việc"
+            class="flex gap-1 p-1 rounded"
+            :class="{
+              'bg-green-400': countJobsFinished === suumJobs && suumJobs > 0,
+            }"
+          >
+            <CheckSquareOutlined />
+            {{ `${countJobsFinished}/${suumJobs}` }}
+          </span>
+        </div>
+      </div>
 
       <a-button
         size="small"
@@ -59,24 +106,18 @@
         <template #icon><EditOutlined /></template>
       </a-button>
     </div>
-    <Teleport to="body">
-      <CardDetail
-        v-if="openCard"
-        :isShow="openCard"
-        :cardId="card.Id"
-        @closeModal="openCard = false"
-      />
-    </Teleport>
   </li>
 </template>
 <script setup>
-  import { nextTick, ref, watchEffect } from "vue";
+  import { nextTick, ref, watchEffect, computed } from "vue";
+  import { useRouter } from "vue-router";
   import useClickOutside from "../../../hooks/useClickOutSide";
   import CardDetail from "./CardDetail.vue";
   const props = defineProps({
     card: Object,
     editTitleCard: Function,
   });
+  const router = useRouter();
   const valueInput = ref(props.card.Title ?? "");
   const isShowingForm = ref(false);
   const inputRef = ref();
@@ -87,6 +128,26 @@
   const positionForm = ref({});
   const positionNav = ref({});
   const openCard = ref(false);
+  const suumJobs = computed(() => {
+    let counts = 0;
+    props.card.Checklists.forEach((c) => {
+      counts += c?.Jobs.length ?? 0;
+    });
+    return counts;
+  });
+  const countJobsFinished = computed(() => {
+    let counts = 0;
+    props.card.Checklists.forEach((c) => {
+      if (c?.Jobs.length > 0) {
+        c.Jobs.forEach((j) => {
+          if (j.IsFinished) {
+            counts++;
+          }
+        });
+      }
+    });
+    return counts;
+  });
   // ========== start lifecycle ==========
   // watchEffect(() => {
   //   if (isClickoutSide.value) {
@@ -132,18 +193,21 @@
     });
     // formRef.value.scrollIntoView();
   };
+  const onOpenCard = () => {
+    router.push({ name: "CardDetail", params: { cardId: props.card.Id } });
+  };
 
   // ========== end methods ==========
 </script>
 <style scoped>
-  .drag-card > div {
+  /* .drag-card > div {
     transform: rotate(5deg);
-  }
-  .ghost-card {
+  } */
+  /* .ghost-card {
     background: lightgray;
     border-radius: 6px;
   }
   .ghost-card > div {
     visibility: hidden;
-  }
+  } */
 </style>

@@ -3,12 +3,14 @@ import WorkspaceMember from "./WorkspaceMember.vue";
 import WorkspaceSetting from "./WorkspaceSetting.vue";
 import WorkspaceBoard from "./WorkspaceBoard.vue";
 import ProjectDetail from "./project/ProjectDetail.vue";
+import CardDetail from "./project/CardDetail.vue";
 const routerWorkspace = [
   {
     path: "/ws/:id/",
     name: "WorkspacePage",
     meta: {
       layout: "default",
+      requiresAuth: true
     },
     redirect: (to) => {
       // the function receives the target route as the argument
@@ -35,7 +37,14 @@ const routerWorkspace = [
       {
         path: "projects/:projectId",
         name: "ProjectDetail",
-        component: ProjectDetail
+        component: ProjectDetail,
+        children: [
+          {
+            path: 'card/:cardId',
+            name: 'CardDetail',
+            component: CardDetail
+          }
+        ]
       }
     ],
   },

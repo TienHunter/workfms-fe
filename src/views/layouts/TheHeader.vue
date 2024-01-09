@@ -1,13 +1,15 @@
 <template lang="">
   <a-layout-header class="header flex items-center justify-between">
     <div class="flex items-center justify-start">
-      <a-avatar
-        class="pointer"
-        :width="40"
-        :height="40"
-        src="/src/assets/images/logo.jpg"
-      >
-      </a-avatar>
+      <router-link :to="{ name: 'Dashboard', params: {} }">
+        <a-avatar
+          class="pointer"
+          :width="40"
+          :height="40"
+          src="/src/assets/images/logo.jpg"
+        >
+        </a-avatar>
+      </router-link>
 
       <!-- <div class="logo pointer" @click=""></div> -->
 
@@ -16,7 +18,7 @@
           <a-menu @click="handleMenuClick">
             <a-menu-item class="pointer-none">
               <span class="font-large font-bold">
-                <FormOutlined /> Không gian làm việc hiện tại</span
+                <FormOutlined /> {{ $t("header.CurrentWorkspace") }}</span
               >
             </a-menu-item>
             <a-menu-item class="pointer-none">
@@ -26,7 +28,7 @@
             <a-divider />
             <a-menu-item class="pointer-none">
               <span class="font-large font-bold">
-                <FormOutlined /> Các không gian làm việc của bạn</span
+                <FormOutlined />{{ $t("header.YourWorkspaces") }}</span
               >
             </a-menu-item>
             <a-menu-item key="1">
@@ -44,7 +46,7 @@
           </a-menu>
         </template>
         <a-button size="medium" type="text">
-          Các không gian làm việc
+          {{ $t("header.Workspaces") }}
           <DownOutlined />
         </a-button>
       </a-dropdown>
@@ -71,7 +73,7 @@
           </a-menu>
         </template>
         <a-button size="medium" type="text">
-          Gần đây
+          {{ $t("header.Recently") }}
           <DownOutlined />
         </a-button>
       </a-dropdown>
@@ -98,7 +100,7 @@
           </a-menu>
         </template>
         <a-button size="medium" type="text">
-          Dấu sao
+          {{ $t("header.Star") }}
           <DownOutlined />
         </a-button>
       </a-dropdown>
@@ -110,23 +112,23 @@
               <div class="flex flex-col">
                 <h5>
                   <RadiusUprightOutlined />
-                  Tạo bảng
+                  {{ $t("header.CreateProjectTitle") }}
                 </h5>
                 <p style="font-size: 12px">
-                  Một bảng được tạo thành từ các thẻ được sắp xếp trong danh
-                  sách. Sử dụng bảng để quản lý các dự án, theo dõi thông tin,
-                  hoặc tổ chức bất cứ việc gì.
+                  {{ $t("header.CreateProjectSubTitle") }}
                 </p>
               </div>
             </a-menu-item>
 
             <a-menu-item key="2">
               <div class="flex flex-col">
-                <h5><UsergroupAddOutlined /> Tạo không gian làm việc</h5>
+                <h5>
+                  <UsergroupAddOutlined />{{
+                    $t("header.CreateWorkspaceTitle")
+                  }}
+                </h5>
                 <p style="font-size: 12px">
-                  Một Không gian làm việc là tập hợp các bảng và mọi người. Sử
-                  dụng Không gian làm việc để tổ chức công ty của bạn, hỗ trợ
-                  người bận rộn, gia đình hoặc bạn bè.
+                  {{ $t("header.CreateWorkspaceSubTitle") }}
                 </p>
               </div>
             </a-menu-item>
@@ -142,7 +144,7 @@
     <div class="flex items-center justify-end gap-2">
       <a-input-search
         v-model:value="value"
-        placeholder="input search text"
+        :placeholder="$t('common.SearchHint')"
         style="width: 200px"
         @search="onSearch"
       />
@@ -155,12 +157,12 @@
           <a-menu @click="handleMenuClick">
             <a-menu-item key="1">
               <UserOutlined />
-              Hồ sơ
+              {{ $t("loginPage.Profile") }}
             </a-menu-item>
 
-            <a-menu-item key="2">
+            <a-menu-item key="2" @click="logout">
               <LogoutOutlined />
-              Đăng xuất
+              {{ $t("loginPage.Logout") }}
             </a-menu-item>
           </a-menu>
         </template>
@@ -187,6 +189,8 @@
     QuestionCircleOutlined,
   } from "@ant-design/icons-vue";
   import { ref, onBeforeMount } from "vue";
+  import { useRoute } from "vue-router";
+  import localStore from "@/utils/localStore.js";
   export default {
     components: {
       DownOutlined,
@@ -198,12 +202,20 @@
       QuestionCircleOutlined,
     },
     setup() {
+      const route = useRoute();
       onBeforeMount(() => {});
       const handleMenuClick = (e) => {
         console.log("click", e);
       };
+
+      const logout = () => {
+        localStore.clear();
+        // Redirect to the "signin" page
+        window.location.href = "/login";
+      };
       return {
         handleMenuClick,
+        logout,
       };
     },
   };

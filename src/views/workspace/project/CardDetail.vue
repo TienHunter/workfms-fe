@@ -163,38 +163,27 @@
           </div>
         </div>
         <!-- checklist -->
-        <!-- v-for="cl in card.Checklists" :key="cl.Id" -->
-        <div v-for="cl in card.Checklists" :key="cl.Id" class="check-list mt-4">
-          <div class="flex items-center gap-3 mt-2 text-xl">
-            <CheckSquareOutlined />
-            {{ cl.ChecklistName }}
-            <a-button class="ml-auto">Xóa</a-button>
-          </div>
-          <a-progress
-            :stroke-color="{
-              from: '#108ee9',
-              to: '#87d068',
-            }"
-            :percent="50"
-            status="active"
-          />
-          <ul class="list-none flex flex-col gap-2">
-            <li
-              v-for="j in cl.Jobs"
-              :key="j.Id"
-              class="flex items-center gap-2"
-            >
-              <a-checkbox v-model:checked="j.IsFinished" />
-              <div class="hover:bg-gray-300 flex-1 p-2 rounded pointer">
-                <span>{{ j.JobName }}</span>
-              </div>
-            </li>
-            <li>
-              <JobCreateItem :checklist="cl" :onSubmit="createJob" />
-            </li>
-          </ul>
-        </div>
+        <draggable
+          :list="card.Checklists"
+          class=""
+          handle=".handle"
+          item-key="checklist"
+          drag-class="drag-card"
+          ghost-class="sortable-ghost"
+          animation="150"
+          @start="drag = true"
+          @end="drag = false"
+          @change="onChangePositionChecklist"
+        >
+          <template #item="{ element, index }">
+            <Checklist :checklist="element" class="mt-4" />
+          </template>
+        </draggable>
+        <!-- <template v-for="cl in card.Checklists" :key="cl.Id">
+          <Checklist :checklist="cl" class="mt-4" />
+        </template> -->
 
+        <!-- active -->
         <div class="card-detail-active mt-4">
           <div class="card-detail-active__nav flex items-center gap-6">
             <a-tabs v-model:activeKey="activeKey">
@@ -243,7 +232,7 @@
           </template>
           Việc cần làm
         </a-button>
-        <a-button class="truncate text-left">
+        <a-button class="truncate text-left" @click="openModalDeadline = true">
           <template #icon>
             <ClockCircleOutlined />
           </template>
@@ -300,15 +289,50 @@
       </a-form-item>
     </a-form>
   </a-modal>
+  <!-- modal thêm thời hạn -->
+  <a-modal
+    v-model:open="openModalDeadline"
+    :width="400"
+    :zIndex="1001"
+    centered
+    title="Thiết lập thời gian"
+    ok-text="Lưu"
+    cancel-text="Hủy"
+    :confirm-loading="isLoadingModalDeadline"
+    @ok="saveDeadline"
+    @cancel="closeDeadlineModal"
+  >
+    <a-form :model="deadlineModal" layout="vertical" name="deadlineModal">
+      <a-form-item
+        name="Time"
+        label="Thời hạn"
+        :rules="[
+          {
+            required: true,
+            message: 'Thời hạn không được để trống',
+          },
+        ]"
+      >
+        <a-date-picker
+          v-model:value="deadlineModal.Time"
+          format="DD/MM/YYYY"
+          @change="onchangeDate"
+        />
+      </a-form-item>
+    </a-form>
+  </a-modal>
 </template>
 <script setup>
   import { watchEffect, ref, onBeforeMount, nextTick } from "vue";
+  import { useRoute, useRouter } from "vue-router";
   import {
     EditOutlined,
     ScheduleOutlined,
     AlignLeftOutlined,
     MenuUnfoldOutlined,
   } from "@ant-design/icons-vue";
+  import draggable from "vuedraggable";
+  import Checklist from "./Checklist.vue";
   import JobItem from "./JobItem.vue";
   import JobCreateItem from "./JobCreateItem.vue";
   import {
@@ -321,12 +345,15 @@
   import { POSITION_GAP } from "@/utils/constants";
   import helper from "@/utils/helper";
   // ========== start state ==========
-  const props = defineProps({
-    isShow: Boolean,
-    cardId: String,
-  });
+  // const props = defineProps({
+  //   isShow: Boolean,
+  //   cardId: String,
+  // });
   const emit = defineEmits(["closeModal"]);
 
+  const route = useRoute();
+  const router = useRouter();
+  const { cardId } = route.params;
   const open = ref(false);
   const content = ref("");
   const card = ref({});
@@ -339,16 +366,23 @@
   const checklistModal = ref({});
   const activeKey = ref(1);
   const fileList = ref([]);
+  const drag = ref(false);
+  const deadlineModal = ref({});
+
+  // deadline
+  const openModalDeadline = ref(false);
+  const isLoadingModalDeadline = ref(false);
   // ========== end state ==========
 
   // ========== start lifecycle ==========
   onBeforeMount(async () => {
     // get card detail
     try {
-      let res = await cardService.getById(props.cardId);
+      let res = await cardService.getById(cardId);
       if (res.Success) {
         card.value = res.Data;
         content.value = res.Data.Description;
+        open.value = true;
       }
     } catch (error) {
       message.error("Lấy thông tin thẻ công việc thất bại");
@@ -373,6 +407,7 @@
             uid: att.Id,
             name: att.FileName,
             type: att.ContentType,
+            response: error.ErrorMessage ?? "Server Error 500",
             status: "error",
           };
           fileList.value.push(newFile);
@@ -385,18 +420,16 @@
       message.error("Lấy thông tin thẻ công việc thất bại");
       console.log(error);
     }
-  }),
-    watchEffect(() => {
-      console.log(content.value);
-    });
+  });
+
   watchEffect(() => {
-    open.value = props.isShow;
+    console.log(deadlineModal.value);
   });
   // ========== end lifecycle ==========
 
   // ========== start methods ==========
   const closeModal = () => {
-    emit("closeModal");
+    router.push({ name: "ProjectDetail" });
   };
   const cancelUpdateDesc = () => {
     isEditDesc.value = false;
@@ -412,7 +445,7 @@
   const updateDesc = async () => {
     try {
       isLoadingUpdateDesc.value = true;
-      await cardService.updateDesc(props.cardId, content.value);
+      await cardService.updateDesc(cardId, content.value);
       isEditDesc.value = false;
       card.value.Description = content.value;
     } catch (error) {
@@ -426,7 +459,7 @@
   const createChecklist = async () => {
     try {
       isLoadingchecklistModal.value = true;
-      checklistModal.value.cardId = props.cardId;
+      checklistModal.value.cardId = cardId;
       let lastChecklist =
         card.value?.Checklists?.[card.value?.Checklists?.length - 1];
       checklistModal.value.SortOrder =
@@ -450,32 +483,12 @@
     checklistModal.value = {};
   };
 
-  const createJob = async (jobInfo) => {
-    try {
-      let value = helper.deepClone(jobInfo) ?? {};
-      let res = await jobService.create(value);
-      if (res.Success) {
-        let checklist = card.value.Checklists.find(
-          (cl) => cl.Id === value.ChecklistId
-        );
-        if (checklist) {
-          checklist.Jobs.push(res.Data);
-        }
-        return true;
-      }
-      return false;
-    } catch (error) {
-      message.error("create job failure");
-      console.log(error);
-      return false;
-    }
-  };
   const handleCustomRequest = async ({ file, onSuccess, onError }) => {
     const formData = new FormData();
     formData.append("file", file);
 
     try {
-      let res = await fileService.uploadFile(formData, props.cardId);
+      let res = await fileService.uploadFile(formData, cardId);
       console.log(file);
       console.log(typeof file);
       // push vào filelists
@@ -518,9 +531,45 @@
       newFileList.splice(index, 1);
       fileList.value = newFileList;
     } catch (error) {
+      message.error("remove file failure");
       console.log(error);
     }
-    console.log(file);
+    // console.log(file);
+  };
+  const onChangePositionChecklist = async (e) => {
+    let item = e.added || e.moved;
+    if (!item) {
+      return;
+    }
+    let index = item.newIndex;
+    let prevChecklist = card.value.Checklists[index - 1];
+    let nextKChecklist = card.value.Checklists[index + 1];
+    let currentChecklist = card.value.Checklists[index];
+    let sortOrder = POSITION_GAP;
+    if (prevChecklist && nextKChecklist) {
+      sortOrder = (prevChecklist.SortOrder + nextKChecklist.SortOrder) / 2;
+    } else if (prevChecklist) {
+      sortOrder = prevChecklist.SortOrder + prevChecklist.SortOrder / 2;
+    } else if (nextKChecklist) {
+      sortOrder = nextKChecklist.SortOrder / 2;
+    }
+    currentChecklist.SortOrder = sortOrder;
+    // call api update new item
+    try {
+      let valueUpdate = {
+        Id: currentChecklist.Id,
+        cardId: card.value.Id,
+        SortOrder: sortOrder,
+      };
+      await checklistService.move(valueUpdate);
+    } catch (error) {
+      console.log(error);
+      message.error("Đã xảy ra lỗi cập nhật kanban");
+    }
+  };
+
+  const onchangeDate = () => {
+    console.log("change date", deadlineModal.value);
   };
   // ========== end methods ==========
 </script>
