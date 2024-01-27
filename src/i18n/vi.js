@@ -22,7 +22,12 @@ export default {
    common: {
       Public: "Công khai",
       Private: "Riêng tư",
-      SearchHint: "Tìm kiếm..."
+      Workspace: "Không gian làm việc",
+      SearchHint: "Tìm kiếm...",
+      Empty: "Trống",
+      Vietnamese: "Tiếng việt",
+      English: "Tiếng anh",
+      Language: "Ngôn ngữ"
 
    },
    header: {
@@ -47,12 +52,43 @@ export default {
    workspace: {
       Workspaces: "Các không gian làm việc",
       CreateWorkspace: 'Tạo không gian làm việc',
+      WorkspaceName: "Tên không gian làm việc",
       WorkspaceNameRequired: "Nhập tên không gian làm việc",
       Description: "Mô tả",
-
+      ViewAbility: "Khả năng xem",
+      YourProjects: "Các dự án của bạn",
+      SettingWorkspace: "Cài đặt không gian làm việc",
+      Avatar: "Ảnh đại diện",
+      RemoveWorkspace: "Xóa không gian làm việc"
    },
    workspaceBoard: {
       Project: "Dự án",
+
+   },
+   project: {
+      CreateProject: "Tạo dự án",
+      ProjectName: "Tên dự án",
+      ProjectNameRequired: "Nhập tên dự án",
+      WorkspaceRequired: "Chọn không gian làm việc",
+      ViewAbility: "Quyền xem",
+      Private: "Riêng tư",
+      PrivateDesc: "Chỉ các thành viên trong dự án mới có thể xen và sửa bảng này.",
+      Workspace: "Không gian làm việc",
+      WorkspaceDesc: "Tất cả thành viên trong không gian làm việc có thể xem và sửa bảng này",
+      Public: "Công khai",
+      PublicDesc: "Bất kỳ ai trên internet cũng có thể xem bảng này. Chỉ cho thành viên trong không gian làm việc mới có quyền sửa.",
+      Filter: "Bộ lọc",
+      Share: "Chia sẻ",
+
+   },
+   kanban: {
+      AddKanban: "Thêm kanban",
+      AddKanbanHint: "Nhập tên kanban",
+      RemoveKanban: "Xóa kanban",
+   },
+   card: {
+      AddCard: "Thêm thẻ",
+      CardTitleHint: "Nhập tên thẻ"
 
    },
    command: {

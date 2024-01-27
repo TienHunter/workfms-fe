@@ -135,13 +135,13 @@
           </a-menu>
         </template>
         <a-button size="medium" type="primary">
-          Tạo mới
+          {{ $t("command.Create") }}
           <DownOutlined />
         </a-button>
       </a-dropdown>
     </div>
 
-    <div class="flex items-center justify-end gap-2">
+    <div class="flex items-center justify-end gap-4">
       <a-input-search
         v-model:value="value"
         :placeholder="$t('common.SearchHint')"
@@ -154,13 +154,35 @@
 
       <a-dropdown trigger="['click']">
         <template #overlay>
-          <a-menu @click="handleMenuClick">
+          <a-menu>
             <a-menu-item key="1">
               <UserOutlined />
               {{ $t("loginPage.Profile") }}
             </a-menu-item>
+            <a-menu-item key="2">
+              <a-dropdown trigger="['click']">
+                <template #overlay>
+                  <a-menu
+                    v-model:selectedKeys="selectedLanguage"
+                    @click="selectLanguage"
+                  >
+                    <a-menu-item key="vi">
+                      {{ $t("common.Vietnamese") }}
+                    </a-menu-item>
 
-            <a-menu-item key="2" @click="logout">
+                    <a-menu-item key="en">
+                      {{ $t("common.English") }}
+                    </a-menu-item>
+                  </a-menu>
+                </template>
+                <a class="pointer" @click.stop="">
+                  <TranslationOutlined />
+                  {{ $t("common.Language") }}
+                  <CaretDownOutlined />
+                </a>
+              </a-dropdown>
+            </a-menu-item>
+            <a-menu-item key="5" @click="logout">
               <LogoutOutlined />
               {{ $t("loginPage.Logout") }}
             </a-menu-item>
@@ -189,7 +211,7 @@
     QuestionCircleOutlined,
   } from "@ant-design/icons-vue";
   import { ref, onBeforeMount } from "vue";
-  import { useRoute } from "vue-router";
+  import { useRoute, useRouter } from "vue-router";
   import localStore from "@/utils/localStore.js";
   export default {
     components: {
@@ -203,11 +225,16 @@
     },
     setup() {
       const route = useRoute();
+      const router = useRouter();
+      const selectedLanguage = ref([localStore.getItem("app_language")]);
       onBeforeMount(() => {});
       const handleMenuClick = (e) => {
         console.log("click", e);
       };
-
+      const selectLanguage = (e) => {
+        localStore.setItem("app_language", e.key);
+        router.go(0);
+      };
       const logout = () => {
         localStore.clear();
         // Redirect to the "signin" page
@@ -215,7 +242,9 @@
       };
       return {
         handleMenuClick,
+        selectLanguage,
         logout,
+        selectedLanguage,
       };
     },
   };

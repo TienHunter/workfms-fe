@@ -9,12 +9,12 @@
           <a-menu>
             <a-menu-item key="1">
               <PlusOutlined />
-              Add card
+              {{ $t("card.AddCard") }}
             </a-menu-item>
 
             <a-menu-item key="2" style="color: red">
               <DeleteOutlined />
-              Delete list
+              {{ $t("kanban.RemoveKanban") }}
             </a-menu-item>
           </a-menu>
         </template>
@@ -46,10 +46,10 @@
       <div class="m-2">
         <CreateItem
           tag="textarea"
-          placeholder="Enter the title card"
-          textSubmit="Add card"
-          textCancel="Cancel"
-          textButton="Add card"
+          :placeholder="$t('card.CardTitleHint')"
+          :textSubmit="$t('card.AddCard')"
+          :textCancel="$t('command.Cancel')"
+          :textButton="$t('card.AddCard')"
           :onSubmit="addCard"
         />
       </div>

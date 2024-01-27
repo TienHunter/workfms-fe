@@ -85,6 +85,7 @@
 <script setup>
   import { reactive, ref } from "vue";
   import { useRouter } from "vue-router";
+  import { jwtDecode } from "jwt-decode";
   import localStore from "../../utils/localStore";
   import authService from "../../api/services/authService";
   import Enums from "../../enums";
@@ -98,22 +99,35 @@
   const passwordRef = ref(null);
   const messageError = ref("");
   const onFinish = async (value) => {
-    // call api
-    value.LoginType = Enums.LoginType.LoginByUsername;
-    let res = await authService.login(value);
-    console.log(res);
-    if (res.Success) {
-      // set token vao cookie
-      await localStore.setItem(Enums.localStorage.Token, res.Data);
-      router.push({ name: "Dashboard" });
-    } else {
-      messageError.value = res.Message ?? "";
-      // usenameRef.value.$el.querySelector("input").style.borderColor = "red";
-      // passwordRef.value.$el.querySelector(".ant-input-affix-wrapper.ant-input-password").style.borderColor = "red";
-      // passwordRef.value.$el.querySelector(".ant-form-item-control-input").nextSibling.style = "display:flex";
-      // usenameRef.value.$el.querySelector("input").focus();
-      // passwordRef.value.$el.querySelector(".ant-form-item-explain-error").sty = es.Message;
-      // passwordRef.value.$el.querySelector(".ant-form-item-explain-error").innerHTML = es.Message;
+    try {
+      // call api
+      value.LoginType = Enums.LoginType.LoginByUsername;
+      let res = await authService.login(value);
+      console.log(res);
+      if (res.Success && res.Data) {
+        // decode token
+        let info = jwtDecode(res.Data);
+        localStore.setItem(Enums.localStorage.Token, res.Data);
+        console.log(info);
+        if (info) {
+          localStore.setItem("Email", info?.Email ?? "");
+          localStore.setItem("Name", info?.Name ?? "");
+          localStore.setItem("UserId", info?.UserId ?? "");
+          localStore.setItem("Username", info?.Username ?? "");
+        }
+        // set token vao localStorage
+        router.push({ name: "Dashboard" });
+      } else {
+        messageError.value = res.Message ?? "";
+        // usenameRef.value.$el.querySelector("input").style.borderColor = "red";
+        // passwordRef.value.$el.querySelector(".ant-input-affix-wrapper.ant-input-password").style.borderColor = "red";
+        // passwordRef.value.$el.querySelector(".ant-form-item-control-input").nextSibling.style = "display:flex";
+        // usenameRef.value.$el.querySelector("input").focus();
+        // passwordRef.value.$el.querySelector(".ant-form-item-explain-error").sty = es.Message;
+        // passwordRef.value.$el.querySelector(".ant-form-item-explain-error").innerHTML = es.Message;
+      }
+    } catch (error) {
+      console.log(error.message);
     }
   };
   const handleFinishFailed = (errors) => {

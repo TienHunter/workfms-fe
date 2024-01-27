@@ -15,13 +15,13 @@
         <a-menu-item :key="`/ws/${id}/boards`">
           <router-link :to="{ name: 'WorkspaceBoard' }">
             <pie-chart-outlined />
-            <span>Bảng</span>
+            <span>{{ $t("dashboard.Project") }}</span>
           </router-link>
         </a-menu-item>
         <a-menu-item :key="`/ws/${id}/member`">
           <router-link :to="{ name: 'WorkspaceMember' }">
             <UsergroupAddOutlined />
-            <span>Thành viên</span>
+            <span>{{ $t("dashboard.Member") }}</span>
             <a-button
               type="text"
               class="add-memenber-workspace"
@@ -36,13 +36,13 @@
         <a-menu-item :key="`/ws/${id}/setting`">
           <router-link :to="{ name: 'WorkspaceSetting' }">
             <AppstoreAddOutlined />
-            <span>Cài đặt</span>
+            <span>{{ $t("dashboard.Setting") }}</span>
           </router-link>
         </a-menu-item>
         <a-divider style="border-color: #666; border-width: 1px" />
 
         <div class="flex items-center justify-between px-2">
-          <span class="text-bold">Các dự án của bạn</span>
+          <span class="text-bold">{{ $t("workspace.YourProjects") }}</span>
           <a-button type="text" @click="openCreateProjectModel">
             <template #icon>
               <PlusOutlined />
@@ -70,9 +70,9 @@
     v-model:open="isShowCreateProjectNodal"
     :mask-closable="false"
     :confirm-loading="isLoadingCreateProjectModal"
-    title="Tạo bảng"
-    ok-text="Tạo"
-    cancel-text="Hủy"
+    :title="$t('project.CreateProject')"
+    :ok-text="$t('command.Create')"
+    :cancel-text="$t('command.Cancel')"
     @ok="onCreateProject"
   >
     <a-form
@@ -82,16 +82,16 @@
       name="form_in_modal"
     >
       <!-- title board -->
-      <a-form-item name="ImageId" label="Phông nền">
+      <!-- <a-form-item name="ImageId" label="Phông nền">
         <a-input v-model:value="projectModal.ImageId" />
-      </a-form-item>
+      </a-form-item> -->
       <a-form-item
         name="ProjectName"
-        label="Tiêu đề bảng"
+        :label="$t('project.ProjectName')"
         :rules="[
           {
             required: true,
-            message: 'Nhập tiêu đề bảng',
+            message: $t('project.ProjectNameRequired'),
           },
         ]"
       >
@@ -101,11 +101,11 @@
       <!-- select workspace -->
       <a-form-item
         name="WorkspaceId"
-        label="Không gian làm việc"
+        :label="$t('project.Workspace')"
         :rules="[
           {
             required: true,
-            message: 'Chọn không gian làm việc',
+            message: $t('project.WorkspaceRequired'),
           },
         ]"
       >
@@ -119,7 +119,7 @@
       </a-form-item>
 
       <!-- accessible abitily  -->
-      <a-form-item name="Type" label="Quyền xem">
+      <a-form-item name="Type" :label="$t('project.ViewAbility')">
         <a-select v-model:value="projectModal.Type" optionLabelProp="title">
           <template v-for="ab in accessibleBoards" :key="ab.value">
             <a-select-option :value="ab.value" :title="ab.title">
@@ -147,6 +147,7 @@
   import { ref, onBeforeMount, reactive, computed, watchEffect } from "vue";
   import { PlusOutlined } from "@ant-design/icons-vue";
   import { useRoute, useRouter } from "vue-router";
+  import { useI18n } from "vue-i18n";
   // import Icon from "@ant-design/icons-vue";
   import {
     LockOutlined,
@@ -163,6 +164,7 @@
   const route = useRoute();
   const router = useRouter();
   const store = useStore();
+  const { t } = useI18n();
 
   const workspaces = computed(() => store.state.moduleWorkspaces.workspaces);
   const workspace = computed(() => store.state.moduleWorkspaces.workspace);
@@ -180,20 +182,20 @@
     {
       icon: LockOutlined,
       value: 1,
-      title: "Riêng tư",
-      desc: "Chỉ các thành viên trong nhóm mới có thể xen và sửa bảng này.",
+      title: t("project.Private"),
+      desc: t("project.PrivateDesc"),
     },
     {
       icon: TeamOutlined,
       value: 2,
-      title: "Không gian làm việc",
-      desc: "Tất cả thành viên trong không gian làm việc có thể xem và sửa bảng này",
+      title: t("project.Workspace"),
+      desc: t("project.WorkspaceDesc"),
     },
     {
       icon: GlobalOutlined,
       value: 3,
-      title: "Công khai",
-      desc: "Bất kỳ ai trên internet cũng có thể xem bảng này. Chỉ cho thành viên trong không gian làm việc mới có quyền sửa.",
+      title: t("project.Public"),
+      desc: t("project.PublicDesc"),
     },
   ]);
   // ========== end state ==========

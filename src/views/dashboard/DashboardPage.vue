@@ -91,7 +91,7 @@
       >
         <a-form-item
           name="WorkspaceName"
-          label="Tên"
+          :label="$t('workspace.WorkspaceName')"
           :rules="[
             {
               required: true,

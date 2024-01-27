@@ -69,12 +69,14 @@
     console.log(headingRef.value.offsetWidth);
   };
   const onSubmit = () => {
-    if (inputValue.value) {
-      emit("onChangeValue", inputValue.value);
-    } else {
-      inputValue.value = props.valueBind;
+    if (isEditting.value) {
+      if (inputValue.value) {
+        emit("onChangeValue", inputValue.value);
+      } else {
+        inputValue.value = props.valueBind;
+      }
+      isEditting.value = false;
     }
-    isEditting.value = false;
   };
 </script>
 <style lang=""></style>

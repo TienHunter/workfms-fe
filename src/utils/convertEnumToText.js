@@ -1,12 +1,12 @@
-import Enums from "../enums";
 
+import Enums from "../enums";
 
 export const getAccessibleWorkspace = (key) => {
    switch (key) {
       case Enums.WorkspaceType.Private:
-         return "Riêng tư";
+         return t('common.Private');
       case Enums.WorkspaceType.Public:
-         return "Công khai";
+         return t('common.Public');
       default:
          return "";
    }

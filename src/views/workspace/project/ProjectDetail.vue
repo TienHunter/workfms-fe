@@ -22,16 +22,16 @@
             <a-menu>
               <a-menu-item key="1">
                 <LockOutlined />
-                Riêng tư
+                {{ $t("project.Private") }}
               </a-menu-item>
 
               <a-menu-item key="2">
                 <TeamOutlined />
-                Không gian làm việc
+                {{ $t("project.Workspace") }}
               </a-menu-item>
               <a-menu-item key="3">
                 <GlobalOutlined />
-                Công khai
+                {{ $t("project.Public") }}
               </a-menu-item>
             </a-menu>
           </template>
@@ -45,7 +45,7 @@
           <template #icon>
             <FilterFilled />
           </template>
-          Bộ lọc
+          {{ project.Filter }}
         </a-button>
         <a-avatar-group
           :max-count="2"
@@ -74,7 +74,7 @@
           <template #icon>
             <UserAddOutlined />
           </template>
-          Chia sẻ
+          {{ $t("project.Share") }}
         </a-button>
         <a-button>
           <EllipsisOutlined />
@@ -110,10 +110,10 @@
 
         <div class="w-72">
           <CreateItem
-            placeholder="Add another list"
-            textSubmit="enter the list title"
-            textCancel="Cancel"
-            textButton="Add another list"
+            :placeholder="$t('kanban.AddKanbanHint')"
+            :textSubmit="$t('kanban.AddKanban')"
+            :textCancel="$t('command.Cancel')"
+            :textButton="$t('kanban.AddKanban')"
             :onSubmit="addKanban"
           />
         </div>
@@ -137,6 +137,7 @@
     watchEffect,
     watch,
     onMounted,
+    onBeforeUnmount,
   } from "vue";
   import * as signalR from "@microsoft/signalr";
   import { useRoute } from "vue-router";
@@ -147,6 +148,8 @@
   import { projectService, kanbanService } from "@/api/services";
   import { useStore } from "vuex";
   import { POSITION_GAP } from "../../../utils/constants";
+  import localStore from "@/utils/localStore.js";
+  import { message } from "ant-design-vue";
   // ========== start state ==========
   const route = useRoute();
   const store = useStore();
@@ -154,44 +157,31 @@
   const kanbanList = ref([]);
   // const tasks = ref([]);
   const projectId = ref();
-  const drag = ref(false);
+  const listMessage = ref([]);
+  let connection = new signalR.HubConnectionBuilder()
+    .withUrl("https://localhost:44328/project-socket")
+    .build();
   // ========== end state ==========
 
   // ========== start lifecycle ==========
-  // onMounted(() => {
-  //   const prjIdParam = route.params?.projectId ?? "";
-  //   const endpoint = `https://localhost:44328/boardcast`;
-  //   const connectionJob = new signalR.HubConnectionBuilder()
-  //     .withUrl(endpoint)
-  //     .build();
-  //   connectionJob
-  //     .start()
-  //     .then(() => {
-  //       console.log("connect signal started");
-  //     })
-  //     .catch((error) => {
-  //       console.log("connect signal error", error);
-  //     });
 
-  //   connectionJob.on("ReceviceMessage", (data) => {
-  //     console.log(data);
-  //   });
-  // }),
-  watchEffect(() => {
-    projectId.value = route.params?.projectId ?? "";
-  });
+  onBeforeUnmount(() => {
+    connection.stop();
+  }),
+    watchEffect(() => {
+      projectId.value = route.params?.projectId ?? "";
+    });
 
   watchEffect(async () => {
     try {
-      // call project
-      // let resProject = await projectService.getProjectById(projectId.value);
-      // console.log(resProject);
       if (projectId.value) {
+        listMessage.value = [];
         // call api
         try {
           // call project
           let resProject = await projectService.getProjectById(projectId.value);
           // console.log(resProject);
+          project.value = {};
           if (resProject) {
             project.value = resProject.Data;
           }
@@ -206,9 +196,24 @@
           let resKanbans = await kanbanService.getListByProjectId(
             projectId.value
           );
+          kanbanList.value = [];
           if (resKanbans.Success) {
             kanbanList.value = resKanbans.Data;
           }
+          // diconnect socket
+          await stopConnection();
+          // start listening
+          await startConnection();
+          // join socket
+          joinProjectHub();
+          // lang nghe socket
+          connection.on("ReceiveMessage", (projectSender, messageTime) => {
+            console.log(projectSender, messageTime);
+            // listMessage.value.push({ projectSender, messageTime });
+            if (projectSender) {
+              project.value.ProjectName = projectSender.projectName ?? "";
+            }
+          });
         } catch (error) {
           console.log(error.message);
           message.error("get list cards failure");
@@ -222,10 +227,40 @@
   // ========== end lifecycle ==========
 
   // ========== start methods ==========
+
+  // ========== start socket ==========
+  const startConnection = async () => {
+    try {
+      await connection.start();
+      console.log("Connection is established!");
+    } catch (error) {
+      console.log("start connection:", error);
+    }
+  };
+  const joinProjectHub = () => {
+    let userId = localStore.getItem("UserId");
+    if (userId) {
+      console.log("join project");
+      connection.invoke("JoinProject", {
+        userId,
+        projectId: projectId.value,
+      });
+    }
+  };
+  // Send Messages
+  const sendMessage = (message) => {
+    connection.invoke("SendMessage", message);
+  };
+
+  // disconnect
+  const stopConnection = async () => {
+    await connection.stop();
+  };
+  // ========== end socket ==========
   const editNameProject = async (emitValue) => {
     // projectName.value = emitValue;
     // console.log(projectName);
-    if (emitValue) {
+    if (emitValue && project.value.ProjectName !== emitValue) {
       try {
         await projectService.editProjectName({
           ProjectName: emitValue,
@@ -236,6 +271,7 @@
           "moduleProjects/editProjectNameInProjectOnwer",
           project.value
         );
+        //sendMessage(emitValue);
       } catch (error) {
         console.log(error);
       }
